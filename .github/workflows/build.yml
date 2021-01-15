@@ -1,0 +1,62 @@
+name: build
+
+on:
+  watch:
+    types: started
+
+jobs:
+  x86_64-unknown-linux-gnu_ubuntu_16-04:
+    runs-on: ubuntu-16.04
+
+    steps:
+
+    - name: Install dependencies
+      run: |
+        sudo -E apt-get -qq update
+        sudo -E apt-get install --no-install-recommends gettext build-essential autoconf libtool automake unzip git cmake bc libelf-dev
+        sudo -E apt-get -qq autoremove --purge
+        sudo -E apt-get -qq clean
+        echo $(date +%Y年%m月%d日\ %X)
+        sudo -E timedatectl set-timezone "Asia/Shanghai"
+        sudo -E timedatectl set-ntp true
+        echo $(date +%Y年%m月%d日\ %X)
+
+    - name: Checkout
+      timeout-minutes: 2
+      with:
+        ref: master
+        submodules: true
+      uses: actions/checkout@main
+
+    #- name: SSH connection to Actions
+      #uses: yiguihai/debugger-action@master
+
+    - name: Build
+      shell: bash
+      run: |
+        mkdir -p /tmp/build
+        cd /tmp/build
+        git clone -o google-bbr -b v2alpha --depth 1 https://github.com/google/bbr.git
+        cd bbr/
+        #make x86_64_defconfig kvmconfig
+        cp -vf ${{ github.workspace }}/.config .
+        #生成默认配置
+        scripts/config --disable MODULE_SIG
+        scripts/config --disable DEBUG_INFO
+        #patch -p0 .config ${{ github.workspace }}/patch/.config.patch
+        make -j8 deb-pkg
+        
+    - uses: actions/checkout@main
+      continue-on-error: true
+      if: success()
+      env:
+        run_id: ${{ github.id }}
+    - run: |
+        rm -rf /tmp/build/bbr
+        #不删除cp没加R选项复制文件夹报错
+        cp -vf /tmp/build/linux-*_amd64.deb ubuntu-16.04
+        git config user.name "${{ github.repository_owner }}"
+        git config user.email "${{ secrets.MY_EMAIL }}"
+        git add ubuntu-16.04/*
+        git commit -m "${{ github.actor }} ${{ github.event_name }} $(date +%Y年%m月%d日\ %X)"
+        git push -f origin master
