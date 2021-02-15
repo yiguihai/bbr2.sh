@@ -14,9 +14,9 @@ set -e
 EOF
 
 project_url="https://github.com/yiguihai/bbr2.sh/raw/master/"
-header_file_dir="${project_url}/ubuntu-16.04/linux-headers-5.4.0-rc6+_5.4.0-rc6+-1_amd64.deb"
-image_file_dir="${project_url}/ubuntu-16.04/linux-image-5.4.0-rc6+_5.4.0-rc6+-1_amd64.deb"
-libc_file_dir="${project_url}/ubuntu-16.04/linux-libc-dev_5.4.0-rc6+-1_amd64.deb"
+header_file_dir="${project_url}/ubuntu-16.04/linux-headers-5.10.0_5.10.0-1_amd64.deb"
+image_file_dir="${project_url}/ubuntu-16.04/linux-image-5.10.0_5.10.0-1_amd64.deb"
+libc_file_dir="${project_url}/ubuntu-16.04/linux-libc-dev_5.10.0-1_amd64.deb"
 source /etc/os-release || exit
 kernel_ver=$(uname -r)
 
