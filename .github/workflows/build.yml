@@ -54,6 +54,7 @@ jobs:
     - run: |
         rm -rf /tmp/build/bbr
         #不删除cp没加R选项复制文件夹报错
+        rm -f ubuntu-16.04/*
         cp -vf /tmp/build/linux-*_amd64.deb ubuntu-16.04
         git config user.name "${{ github.repository_owner }}"
         git config user.email "${{ secrets.MY_EMAIL }}"
